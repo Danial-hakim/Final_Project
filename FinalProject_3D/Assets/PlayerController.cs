@@ -1,5 +1,7 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -12,6 +14,13 @@ public class PlayerController : MonoBehaviour
     public float turnSmoothTime = 0.1f;
 
     float turnSmoothVelocity;
+
+    public GameObject cameraObject;
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = true;
+    }
     // Update is called once per frame
     void Update()
     {
@@ -28,6 +37,36 @@ public class PlayerController : MonoBehaviour
 
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
             controller.Move(moveDir.normalized * speed * Time.deltaTime);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        handleCameraZoom();
+    }
+
+    public void handleCameraZoom()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            Vector3 cursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            cameraObject.transform.LookAt(cursorPos);
+
+            // Zoom in on the cursor position
+            cameraObject.GetComponent<CinemachineFreeLook>().m_Lens.FieldOfView = 20;
+        }
+        else if(Input.GetMouseButton(1))
+        {
+            Vector3 cursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            cameraObject.transform.LookAt(cursorPos);
+
+            // Zoom out on the cursor position
+            cameraObject.GetComponent<CinemachineFreeLook>().m_Lens.FieldOfView = 60;
+        }
+        else
+        {
+            cameraObject.GetComponent<CinemachineFreeLook>().m_Lens.FieldOfView = 40;
+            cameraObject.transform.LookAt(transform.position + new Vector3(0, 5, 5));
         }
     }
 }
